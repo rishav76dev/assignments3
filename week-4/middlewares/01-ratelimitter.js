@@ -12,6 +12,25 @@ const app = express();
 // clears every one second
 
 let numberOfRequestsForUser = {};
+
+app.use((req,res,next)=> {
+  const userId = req.header('user-id')
+  if (!userId){
+    return res.status(400).send('Missing user')
+  }
+  if(!numberOfRequestsForUser[userId] ){
+    numberOfRequestsForUser[userId] = { count : 1}
+  }else{
+    numberOfRequestsForUser[userId].count++;
+  }
+  let userdata = numberOfRequestsForUser[userId]
+
+  if(userdata.count>5){
+    return res.status(404).send('way too many request')
+  }
+next()
+})
+
 setInterval(() => {
     numberOfRequestsForUser = {};
 }, 1000)
